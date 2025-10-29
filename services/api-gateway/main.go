@@ -11,6 +11,7 @@ import (
 
 	"ride-sharing/shared/env"
 	"ride-sharing/shared/messaging"
+	"ride-sharing/shared/tracing"
 )
 
 var (
@@ -19,6 +20,21 @@ var (
 )
 
 func main() {
+	// initializing tracing
+	traceCfg := tracing.Config{
+		ServiceName: "api-gateway",
+		Environment: env.GetString("ENVIRONMENT", "development"),
+		JaegerEndpoint: env.GetString("JAEGER_ENDPOINT", "http://jaeger:14268/api/traces"),
+	}
+
+	sh, err := tracing.InitTracing(traceCfg)
+	if err != nil {
+		log.Fatalf("failed to initialize the tracer: %v\n", err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	defer sh(ctx)
+
 	mux := http.NewServeMux()
 
 	rabbitmq, err := messaging.NewRabbitMQ(rabbitmqConn)

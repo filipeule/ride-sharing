@@ -37,6 +37,11 @@ spec:
                 configMapKeyRef:
                   name: app-config
                   key: STRIPE_CANCEL_URL
+            - name: JAEGER_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  key: JAEGER_ENDPOINT
+                  name: app-config
 
             # Stripe credentials
             - name: STRIPE_SECRET_KEY

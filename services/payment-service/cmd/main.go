@@ -13,16 +13,28 @@ import (
 	"ride-sharing/services/payment-service/pkg/types"
 	"ride-sharing/shared/env"
 	"ride-sharing/shared/messaging"
+	"ride-sharing/shared/tracing"
 )
 
 var GrpcAddr = env.GetString("GRPC_ADDR", ":9004")
 
 func main() {
-	rabbitMqURI := env.GetString("RABBITMQ_URI", "amqp://guest:guest@rabbitmq:5672/")
+	// initializing tracing
+	traceCfg := tracing.Config{
+		ServiceName: "payment-service",
+		Environment: env.GetString("ENVIRONMENT", "development"),
+		JaegerEndpoint: env.GetString("JAEGER_ENDPOINT", "http://jaeger:14268/api/traces"),
+	}
 
-	// Setup graceful shutdown
+	sh, err := tracing.InitTracing(traceCfg)
+	if err != nil {
+		log.Fatalf("failed to initialize the tracer: %v\n", err)
+	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	defer sh(ctx)
+
+	rabbitMqURI := env.GetString("RABBITMQ_URI", "amqp://guest:guest@rabbitmq:5672/")
 
 	go func() {
 		sigCh := make(chan os.Signal, 1)

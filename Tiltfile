@@ -20,7 +20,7 @@ k8s_resource('rabbitmq', port_forwards=['5672', '15672'], labels="tooling")
 
 gateway_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/api-gateway ./services/api-gateway'
 if os.name == 'nt':
-  gateway_compile_cmd = './infra/development/docker/api-gateway-build.bat'
+  gateway_compile_cmd = '.\\infra\\development\\docker\\api-gateway-build.bat'
 
 local_resource(
   'api-gateway-compile',
@@ -51,7 +51,7 @@ k8s_resource('api-gateway', port_forwards=8081,
 
 trip_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/trip-service ./services/trip-service/cmd/main.go'
 if os.name == 'nt':
- trip_compile_cmd = './infra/development/docker/trip-build.bat'
+ trip_compile_cmd = '.\\infra\\development\\docker\\trip-build.bat'
 
 local_resource(
   'trip-service-compile',
@@ -81,7 +81,7 @@ k8s_resource('trip-service', resource_deps=['trip-service-compile', 'rabbitmq'],
 
 driver_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/driver-service ./services/driver-service/cmd'
 if os.name == 'nt':
- driver_compile_cmd = './infra/development/docker/driver-build.bat'
+ driver_compile_cmd = '.\\infra\\development\\docker\\driver-build.bat'
 
 local_resource(
   'driver-service-compile',
@@ -112,7 +112,7 @@ k8s_resource('driver-service', resource_deps=['driver-service-compile', 'rabbitm
 
 payment_compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/payment-service ./services/payment-service/cmd/main.go'
 if os.name == 'nt':
-  payment_compile_cmd = './infra/development/docker/payment-build.bat'
+  payment_compile_cmd = '.\\infra\\development\\docker\\payment-build.bat'
 
 local_resource(
   'payment-service-compile',
@@ -151,3 +151,8 @@ k8s_yaml('./infra/development/k8s/web-deployment.yaml')
 k8s_resource('web', port_forwards=3000, labels="frontend")
 
 ### End of Web Frontend ###
+
+### Jaeger ###
+k8s_yaml('./infra/development/k8s/jaeger.yaml')
+k8s_resource('jaeger', port_forwards=['16686:16686', '14268:14268'], labels="tooling")
+### End of Jaeger ###
