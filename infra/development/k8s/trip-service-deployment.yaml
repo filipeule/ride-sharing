@@ -35,6 +35,11 @@ spec:
                 configMapKeyRef:
                   key: JAEGER_ENDPOINT
                   name: app-config
+            - name: MONGODB_URI
+              valueFrom:
+                configMapKeyRef:
+                  key: mongodb
+                  name: uri
 ---
 apiVersion: v1
 kind: Service
